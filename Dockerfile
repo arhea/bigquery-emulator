@@ -1,6 +1,8 @@
-FROM golang:1.18.3-bullseye
+FROM --platform=$BUILDPLATFORM golang:1.18.3-bullseye
 
 ARG VERSION
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 WORKDIR /work
 

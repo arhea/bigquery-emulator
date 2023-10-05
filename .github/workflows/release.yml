@@ -14,6 +14,7 @@ jobs:
             artifact_name: bigquery-emulator
             asset_name: bigquery-emulator-linux-amd64
             go-version: "1.18"
+
           - os: macos-latest
             artifact_name: bigquery-emulator
             asset_name: bigquery-emulator-darwin-amd64
@@ -21,17 +22,21 @@ jobs:
 
     steps:
     - name: checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
     - name: setup Go ${{ matrix.go-version }}
       uses: actions/setup-go@v4
       with:
         go-version: ${{ matrix.go-version }}
         cache: true
+
     - name: extract version from tags
       id: meta
       run: |
         echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
     - uses: rui314/setup-mold@v1
+
     - name: cache for linux
       uses: actions/cache@v3
       if: runner.os == 'Linux'
@@ -42,6 +47,7 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+
     - name: cache for macOS
       uses: actions/cache@v3
       if: runner.os == 'macOS'
@@ -52,10 +58,12 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+
     - name: build
       run: make emulator/build
       env:
         VERSION: ${{ steps.meta.outputs.VERSION }}
+
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
